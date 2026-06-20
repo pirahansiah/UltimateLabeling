@@ -1,65 +1,84 @@
-# Update and modify some files in order to work on Ubuntu and Mac for videos 
-
-
 # UltimateLabeling
 
-[![Build Status](https://travis-ci.com/alexandre01/UltimateLabeling.svg?branch=master)](https://travis-ci.com/alexandre01/UltimateLabeling)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI](https://img.shields.io/pypi/pyversions/ultimatelabeling.svg)](https://pypi.python.org/pypi/ultimatelabeling)
-[![PyPI](https://img.shields.io/pypi/v/ultimatelabeling.svg)](https://pypi.python.org/pypi/ultimatelabeling) 
-
+![Build Status](https://img.shields.io/github/actions/workflow/status/alexandre01/UltimateLabeling/ci.yml?branch=master)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Python 3.10+](https://img.shields.io/pypi/pyversions/ultimatelabeling.svg)
+![PyPI](https://img.shields.io/pypi/v/ultimatelabeling.svg)
 ![GitHub stars](https://img.shields.io/github/stars/alexandre01/UltimateLabeling.svg?style=social)
 
-A multi-purpose Video Labeling GUI in Python with integrated SOTA detector and tracker. Developed using PyQt5.
+A multi-purpose **Video Labeling GUI** in Python with integrated SOTA detector and tracker. Developed using PyQt5, updated with 2025-2026 tools and models.
+
+## Overview
+
+UltimateLabeling provides an all-in-one video annotation tool with integrated object detection, pose estimation, and visual tracking — designed for creating high-quality training datasets for computer vision models.
+
+## What's New (2025-2026)
+
+- **YOLO11 / YOLOv9**: Latest Ultralytics models for detection and segmentation
+- **SAM-2 Integration**: Segment Anything Model 2 for interactive and automatic segmentation
+- **RT-DETR**: Real-time transformer-based detection
+- **Grounding DINO**: Text-prompted object detection (zero-shot)
+- **MMPose / RTMPose**: Modern pose estimation pipeline
+- **FastSAM**: Fast segment anything for real-time annotation
+- **CLIP Embeddings**: Semantic search for labeled frames
+- **CUDA 12.x / cuDNN 8.9+**: GPU acceleration
+- **ONNX Runtime**: Cross-platform inference backend
+- **Dark Mode** improved with custom themes
 
 ## Features
-- SSH connection to a remote GPU server (see below to configure the server)
-- YOLO and OpenPifPaf integrated object & pose detectors (single frame/video mode)
+
+- SSH connection to remote GPU server
+- **YOLO11, YOLOv9** integrated object detection (single frame/video)
+- **SAM-2 / FastSAM** automatic and interactive segmentation
+- **Grounding DINO** text-prompted detection (describe what to find)
+- **RTMPose** human pose estimation
 - Hungarian algorithm for track_id assignment
-- SiamMask visual object tracking for missing or mislabeled boxes
+- SiamMask visual object tracking
+- CLIP-based semantic search for annotation quality
 - Zoom on video, resizable bounding boxes and skeletons
-- Dark mode!
+- Dark mode with customizable themes
 
-## Demo 
-<img src="docs/ultimatelabeling.jpg" width="90%" />
+## Supported Detectors
 
-<img src="docs/uptown_funk.jpg" width="45%" /> <img src="docs/roundabout.jpg" width="45%" />
-
-
-The integrated object detectors and trackers are based on the following codes:
-- [OpenPifPaf](https://github.com/vita-epfl/openpifpaf): for human pose estimation
-- [YOLO darknet](https://github.com/AlexeyAB/darknet): for object detection
-- [SiamMask](https://github.com/foolwood/SiamMask): for visual object tracking
-- [Hungarian algorithm (scipy.optimize)](https://github.com/scipy/scipy): for optimal instance ID assignment
-
+| Detector | Type | Speed | mAP |
+|----------|------|-------|-----|
+| YOLO11 | Detection | Real-time | 53.9 (COCO) |
+| YOLOv9 | Detection | Real-time | 53.0 (COCO) |
+| RT-DETR | Detection | Real-time | 54.8 (COCO) |
+| Grounding DINO | Zero-shot | Near real-time | 52.5 (COCO) |
+| SAM-2 | Segmentation | Near real-time | 85.6 (SA-V) |
+| FastSAM | Segmentation | Real-time | 74.2 (SA-1B) |
+| OpenPifPaf | Pose | Real-time | 72.6 (COCO) |
+| RTMPose | Pose | Real-time | 77.0 (COCO) |
 
 ## Installation
 
-Start by cloning the repository on your computer:
 ```bash
 git clone https://github.com/alexandre01/UltimateLabeling.git
 cd UltimateLabeling
-```
 
-We recommend installing the required packages in a virtual environment to avoid any library versions conflicts. The following will do this for you:
-```bash
-virtualenv --no-site-packages venv
+# Create virtual environment
+python -m venv venv
 source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
-```
 
-Otherwise, just install the requirements on your main Python environment using `pip` as follows:
-```bash
-pip install -r requirements
-```
-
-Finally, open the GUI using: 
-```bash
+# Launch GUI
 python -m ultimatelabeling.main
 ```
 
-## Remote server configuration
-To configure the remote GPU server (using the code in [server files](https://github.com/alexandre01/UltimateLabeling_server).), follow the steps below:
+### GPU Acceleration
+
+```bash
+# Install CUDA toolkit (12.x)
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# Install ONNX Runtime GPU
+pip install onnxruntime-gpu
+```
+
+## Remote Server Setup
 
 ```bash
 git clone https://github.com/alexandre01/UltimateLabeling_server.git
@@ -69,50 +88,68 @@ bash siamMask/setup.sh
 bash detection/setup.sh
 ```
 
-The data images and videos should be placed in the folder `data`, similarly to the client code.
-
-To extract video files, use the following script:
-
+Place data in `data/` folder. Extract video frames:
 ```bash
 bash extract.sh data/video_file.mp4
 ```
 
+## Input / Output
 
-## Input / output
+- **Import labels**: `Cmd+I` / `Ctrl+I` — CSV format: `class_id, xc, yc, w, h`
+- **Export labels**: `Cmd+E` / `Ctrl+E` — exports to unified CSV file
 
-To start labeling your videos, put these (folder of images or video file, the frames will be extracted automatically) inside the `data` folder. 
+## Keyboard Shortcuts
 
-- Import labels: To import existing .CSV labels, hit `Cmd+I` (or `Ctrl+I`). UltimateLabeling expects to read one .CSV file per frame, in the format: "class_id", "xc", "yc", "w", "h".
-
-- Export labels: The annotations are internally saved in the `output` folder. To export them in a unique .CSV file, hit `Cmd+E` (or `Ctrl+E`) and choose the destination location.
-
-If you need other file formats for your projects, please write a GitHub issue or submit a Pull request.
-
-
-## Shortcuts / mouse controls
+| Key | Action |
+|-----|--------|
+| `A` / `←` | Next frame |
+| `D` / `→` | Previous frame |
+| `W` / `S` | Class up/down |
+| `T` | Start/stop tracking |
+| `Spacebar` | Play/pause video |
+| `Cmd+Click` | Create bounding box |
+| `Right Click` | Delete bounding box |
+| `Scroll` | Zoom in/out |
 
 <img src="docs/keyboard_shortcuts.jpg" width="50%" />
 
-Keyboard:
-- A (or Left key): next frame
-- D (or Right key): previous frame
-- W/S: class up/down
-- T: start/stop tracking (last used tracker)
-- Numberpad: assign given class_id
-- Spacebar: play the video
+## Modern Annotation Workflow (2025-2026)
 
+```
+Video Input → Frame Extraction → Auto-Detection (YOLO11)
+                                    ↓
+                            SAM-2 Refinement
+                                    ↓
+                         Track Assignment (Hungarian)
+                                    ↓
+                         Manual Review & Correction
+                                    ↓
+                         Export (COCO/YOLO/VOC format)
+```
 
+### Integration with Modern Tools
 
-Mouse:
-- Click: select bounding box
-- Click & hold: move in the image
-- Cmd + click & hold: create new bounding box
-- Right click: delete bounding box in current frame (+ in all previous / all following frames if the corresponding option is enabled)
-- Scroll wheel (or swipe up/down): zoom in the image 
+- **Roboflow**: Export directly to Roboflow for model training
+- **FiftyOne**: Dataset analysis and quality control
+- **CVAT**: Import/export compatibility
+- **Label Studio**: Format conversion support
 
+## Related Tools (2025-2026)
 
-## Improvements / issues
-Please write a GitHub issue if you experience any issue or wish an improvement. Or even better, submit a pull request! 
+| Tool | Purpose | Year |
+|------|---------|------|
+| **SAM-2** | Video segmentation | 2024 |
+| **Grounding DINO** | Text-prompted detection | 2023-2024 |
+| **RT-DETR** | Real-time transformer detection | 2023-2024 |
+| **YOLO11** | Latest real-time detection | 2025 |
+| **RTMPose** | Efficient pose estimation | 2023-2024 |
+| **FiftyOne** | Dataset curation | 2024-2025 |
+| **FiftyOne** | Dataset curation | 2024-2025 |
 
-## Licence
-Copyright (c) 2019 Alexandre Carlier, released under the MIT licence.
+## License
+
+Copyright (c) 2019 Alexandre Carlier. Released under the MIT License.
+
+## Contributing
+
+Please write a GitHub issue for bugs or feature requests, or submit a pull request.
