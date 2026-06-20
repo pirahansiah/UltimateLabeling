@@ -7,3 +7,9 @@ build/
 __pycache__
 dist/
 output/
+
+# macOS and career assets
+CAREER_IMPACT.md
+.DS_Store
+._pack-*.idx
+._*
